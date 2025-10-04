@@ -384,7 +384,8 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
             }
 
             // Save file
-            std::ofstream file("covers/" + filename, std::ios::binary);
+            std::string full_path = "covers\\" + filename;
+            std::ofstream file(full_path, std::ios::binary);
             if (file.is_open()) {
                 file.write(response_data.data(), response_data.size());
                 file.close();
@@ -415,14 +416,66 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
                 return false;
             }
 
-            // Save file
-            std::ofstream file("covers/" + filename, std::ios::binary);
-            if (file.is_open()) {
-                file.write(response_data.data(), response_data.size());
-                file.close();
-                std::cout << "[" << index << "] " << info.artistName << " - " << info.songName << " saved" << std::endl;
+            // Save file - use wide character API for proper UTF-8 handling
+            std::string full_path = "covers\\" + filename;
+            std::cout << "[" << index << "] Attempting to create file: " << full_path << std::endl;
+            std::cout << "[" << index << "] File name length: " << filename.length() << std::endl;
+
+            // Convert UTF-8 filename to wide string for Windows API
+            int wide_len = MultiByteToWideChar(CP_UTF8, 0, full_path.c_str(), -1, NULL, 0);
+            if (wide_len > 0) {
+                std::vector<wchar_t> wide_path(wide_len);
+                MultiByteToWideChar(CP_UTF8, 0, full_path.c_str(), -1, wide_path.data(), wide_len);
+
+                // Use wide character file stream
+                std::ofstream file;
+                file.open(wide_path.data(), std::ios::binary);
+                if (file.is_open()) {
+                    file.write(response_data.data(), response_data.size());
+                    file.close();
+                    std::cout << "[" << index << "] " << info.artistName << " - " << info.songName << " saved" << std::endl;
+                } else {
+                    std::cout << "[" << index << "] Cannot create file (wide char): " << filename << std::endl;
+                    std::cout << "[" << index << "] Full path: " << full_path << std::endl;
+
+                    // Detailed character analysis
+                    std::cout << "[" << index << "] Character analysis:" << std::endl;
+                    for (size_t i = 0; i < filename.length(); ++i) {
+                        unsigned char c = static_cast<unsigned char>(filename[i]);
+                        std::cout << "[" << index << "]   char[" << i << "]: " << c << " (0x" << std::hex << static_cast<int>(c) << std::dec << ")";
+                        if (c >= 32 && c <= 126) {
+                            std::cout << " '" << filename[i] << "'";
+                        }
+                        std::cout << std::endl;
+                    }
+
+                    // Try with a simple ASCII name to test
+                    std::string test_path = "covers\\test_file.jpg";
+                    std::ofstream test_file(test_path, std::ios::binary);
+                    if (test_file.is_open()) {
+                        std::cout << "[" << index << "] Test file creation successful" << std::endl;
+                        test_file.close();
+                        DeleteFileA(test_path.c_str());
+                    } else {
+                        std::cout << "[" << index << "] Even test file creation failed" << std::endl;
+                    }
+
+                    // Try with a simpler Chinese filename
+                    std::string simple_chinese = "covers\\test_中文.jpg";
+                    std::ofstream simple_file(simple_chinese, std::ios::binary);
+                    if (simple_file.is_open()) {
+                        std::cout << "[" << index << "] Simple Chinese filename works" << std::endl;
+                        simple_file.close();
+                        DeleteFileA(simple_chinese.c_str());
+                    } else {
+                        std::cout << "[" << index << "] Simple Chinese filename also failed" << std::endl;
+                    }
+
+                    failList.push_back(item_id);
+                    return false;
+                }
             } else {
-                std::cout << "[" << index << "] Cannot create file: " << filename << std::endl;
+                std::cout << "[" << index << "] Failed to convert filename to wide string" << std::endl;
                 failList.push_back(item_id);
                 return false;
             }

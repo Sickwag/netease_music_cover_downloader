@@ -28,6 +28,10 @@ set(SOURCES
 # Create main executable
 add_executable(netease_music_cover ${SOURCES})
 
+# Create test executable for filename handling
+# add_executable(test_filename test_filename.cpp)
+# add_executable(test_windows_filename test_windows_filename.cpp)
+
 # Link libraries
 target_link_libraries(netease_music_cover
     ${Boost_LIBRARIES}
@@ -35,5 +39,15 @@ target_link_libraries(netease_music_cover
     crypt32
 )
 
+# target_link_libraries(test_filename
+#     shell32
+# )
+
+# target_link_libraries(test_windows_filename
+#     shell32
+# )
+
 # Compiler definitions
 target_compile_definitions(netease_music_cover PRIVATE _WIN32_WINNT=0x0601)
+# target_compile_definitions(test_filename PRIVATE _WIN32_WINNT=0x0601)
+# target_compile_definitions(test_windows_filename PRIVATE _WIN32_WINNT=0x0601)

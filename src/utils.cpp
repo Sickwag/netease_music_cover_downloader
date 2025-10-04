@@ -85,8 +85,8 @@ std::string Utils::sanitizeFilename(const std::string& name) {
     // Additional cleaning for problematic characters
     std::string final_result;
     for (char c : cleaned) {
-        // Skip control characters
-        if (c >= 32) {
+        // Skip control characters - cast to unsigned char to properly handle UTF-8
+        if (static_cast<unsigned char>(c) >= 32) {
             final_result += c;
         } else {
             final_result += '_';

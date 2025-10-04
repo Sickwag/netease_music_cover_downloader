@@ -1,0 +1,25 @@
+.vscode/
+build/
+covers/
+*.exe
+*.pdb
+*.ilk
+*.log
+*.zip
+*.7z
+.DS_Store
+Thumbs.db
+
+# IDE files
+*.user
+*.suo
+*.ntvs*
+*.njsproj
+*.vcxproj*
+*.vcxproj.filters
+
+# Test files
+test.py
+test_filename.cpp
+test_windows_filename.cpp
+UTF8_Encoding_Solution.md
