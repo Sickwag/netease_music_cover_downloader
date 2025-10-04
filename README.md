@@ -7,10 +7,6 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
 </p>
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/12345678/123456789-1234567890abcdef.png" alt="Preview" width="400">
-</p>
-
 ## 🌟 项目介绍
 
 这是一个用C++编写的网易云音乐封面下载器，可以帮助你轻松批量下载喜欢的歌曲和专辑封面。无论是想收藏精美封面，还是需要为音乐库整理图片，这个小工具都能帮你搞定！
@@ -26,13 +22,6 @@
 - 🛡️ **安全可靠** - 模拟浏览器请求，智能重试机制
 - ⚡ **高速下载** - 多线程优化，下载速度快如闪电
 
-## 🎯 使用场景
-
-- 📚 **音乐收藏家** - 收集喜欢歌曲的精美封面
-- 🎵 **音乐博主** - 快速获取高质量专辑封面
-- 🎨 **设计师** - 获取灵感素材
-- 📖 **个人整理** - 整理本地音乐库封面
-
 ## 🚀 快速开始
 
 ### 📦 环境要求
@@ -46,7 +35,7 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/netease_music_cover_downloader.git
+git clone https://github.com/sickwag/netease_music_cover_downloader.git
 cd netease_music_cover_downloader
 
 # 创建构建目录
@@ -113,8 +102,7 @@ std::string filename = "周杰伦 - 青花瓷.jpg";
 
 ### 🛡️ 智能请求机制
 - 随机User-Agent模拟真实浏览器
-- 智能重试机制（失败自动重试）
-- 人性化延迟避免请求过快
+- 人性化延迟避免请求过快被系统封禁
 - 完整的HTTPS支持
 
 ### 🎯 精准解析算法
@@ -172,17 +160,25 @@ git push origin feature/AmazingFeature
 
 本项目采用MIT许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
-## 🙏 致谢
+## 📝 更新日志
 
-- 感谢网易云音乐提供精彩的音乐内容
-- 感谢Boost库提供的强大网络支持
-- 感谢所有测试和反馈的朋友们
+### v1.0.0 (2025-10-04)
+- 🎉 **初始版本发布** - 实现基本的网易云音乐封面下载功能
+- 🚀 **批量下载支持** - 支持同时下载多个歌曲/专辑封面
+- 🌐 **中文文件名支持** - 完美解决Windows环境下UTF-8中文文件名创建问题
+- 🛡️ **智能请求机制** - 模拟浏览器请求，避免被服务器识别为爬虫
+- 📝 **多种命名格式** - 提供4种灵活的文件命名选项
+
+### 开发历程
+- 🔧 **2025-10-04 12:10** - 首个可运行版本，但存在中文文件名处理问题
+- 🐛 **2025-10-04 12:36** - 修复中文文件名编码问题，项目趋于稳定
+- 📦 **2025-10-04 13:25** - 完善项目文档，添加README和许可证文件
 
 ## 📞 联系方式
 
-- **GitHub**: [@yourusername](https://github.com/yourusername)
-- **邮箱**: your.email@example.com
-- **Issues**: [提交问题](https://github.com/yourusername/netease_music_cover_downloader/issues)
+- **GitHub**: [@sickwag](https://github.com/sickwag)
+- **邮箱**: Sickwag@outlook.com
+- **Issues**: [提交问题](https://github.com/sickwag/netease_music_cover_downloader/issues)
 
 ---
 
@@ -191,7 +187,7 @@ git push origin feature/AmazingFeature
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/stars/yourusername/netease_music_cover_downloader?style=social" alt="Stars">
-  <img src="https://img.shields.io/github/forks/yourusername/netease_music_cover_downloader?style=social" alt="Forks">
-  <img src="https://img.shields.io/github/watchers/yourusername/netease_music_cover_downloader?style=social" alt="Watchers">
+  <img src="https://img.shields.io/github/stars/sickwag/netease_music_cover_downloader?style=social" alt="Stars">
+  <img src="https://img.shields.io/github/forks/sickwag/netease_music_cover_downloader?style=social" alt="Forks">
+  <img src="https://img.shields.io/github/watchers/sickwag/netease_music_cover_downloader?style=social" alt="Watchers">
 </p>
