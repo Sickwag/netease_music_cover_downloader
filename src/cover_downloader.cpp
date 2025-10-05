@@ -1,14 +1,14 @@
 #include "cover_downloader.h"
-#include "utils.h"
-#include <iostream>
-#include <fstream>
-#include <thread>
 #include <chrono>
-#include <regex>
 #include <filesystem>
-#include <vector>
-#include <string>
+#include <fstream>
+#include <iostream>
+#include <regex>
 #include <sstream>
+#include <string>
+#include <thread>
+#include <vector>
+#include "utils.h"
 
 // For HTTP requests, we need to include appropriate headers
 #ifdef _WIN32
@@ -16,19 +16,17 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #else
-#include <sys/socket.h>
 #include <netdb.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #endif
-
-// Need to include Boost.Beast for HTTP operations
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/ssl.hpp>  // For SSL support in Beast
-#include <boost/beast/version.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/beast/ssl.hpp>
+#include <boost/beast/version.hpp>
 
 CoverDownloader::CoverDownloader() : baseUrl("https://music.163.com") {
 }
@@ -63,7 +61,7 @@ std::vector<char> CoverDownloader::safeRequestBinary(const std::string& url, int
             path = "/";
         }
     } else {
-        return std::vector<char>(); // Return empty vector to indicate error
+        return std::vector<char>();  // Return empty vector to indicate error
     }
 
     for (int attempt = 0; attempt <= retries; ++attempt) {
@@ -79,7 +77,7 @@ std::vector<char> CoverDownloader::safeRequestBinary(const std::string& url, int
             if (is_https) {
                 // Create SSL context
                 ssl::context ctx{ssl::context::tlsv12_client};
-                ctx.set_verify_mode(ssl::verify_none); // In a real application, set appropriate verification
+                ctx.set_verify_mode(ssl::verify_none);  // In a real application, set appropriate verification
 
                 // Look up the domain name
                 tcp::resolver resolver{ioc};
@@ -139,16 +137,15 @@ std::vector<char> CoverDownloader::safeRequestBinary(const std::string& url, int
                     std::cout << "HTTP error: " << res.result_int() << std::endl;
                     if (attempt < retries) {
                         std::cout << "Preparing attempt " << (attempt + 2) << "..." << std::endl;
-                        continue; // Try again
+                        continue;  // Try again
                     }
-                    return std::vector<char>(); // Return empty vector
+                    return std::vector<char>();  // Return empty vector
                 }
 
                 // Convert response body to vector<char>
                 std::vector<char> response_data(res.body().begin(), res.body().end());
                 return response_data;
-            }
-            else {
+            } else {
                 // HTTP (non-SSL) version
                 tcp::resolver resolver{ioc};
                 beast::tcp_stream stream{ioc};
@@ -193,9 +190,9 @@ std::vector<char> CoverDownloader::safeRequestBinary(const std::string& url, int
                     std::cout << "HTTP error: " << res.result_int() << std::endl;
                     if (attempt < retries) {
                         std::cout << "Preparing attempt " << (attempt + 2) << "..." << std::endl;
-                        continue; // Try again
+                        continue;  // Try again
                     }
-                    return std::vector<char>(); // Return empty vector
+                    return std::vector<char>();  // Return empty vector
                 }
 
                 // Convert response body to vector<char>
@@ -227,19 +224,21 @@ std::string CoverDownloader::safeRequest(const std::string& url, int retries) {
 SongInfo CoverDownloader::getSongInfo(const std::string& songId) {
     std::string url = "https://music.163.com/song?id=" + songId;
     std::string response = safeRequest(url);
-
     if (response.empty()) {
-        return { "", "song_" + songId, "Unknown Artist" };
+        return {.imageUrl = "",
+                .songName = "song_" + songId,
+                .artistName = "Unknow Artist"};
     }
 
     SongInfo info;
 
     // Use regex to extract information
-    std::regex title_regex(R"xxx(<meta property="og:title" content="([^"]+)")xxx");
+    std::regex title_regex(R"TITLE(<meta property="og:title" content="([^"]+)")TITLE");
     std::smatch title_match;
     if (std::regex_search(response, title_match, title_regex)) {
         std::string title_content = title_match[1].str();
         size_t pos = title_content.rfind(" - ");
+        // ai said some song's tag use this naming rule
         if (pos != std::string::npos) {
             info.songName = title_content.substr(pos + 3);
         } else {
@@ -253,8 +252,7 @@ SongInfo CoverDownloader::getSongInfo(const std::string& songId) {
     std::vector<std::string> artist_patterns = {
         R"xxx(<meta property="og:music:artist" content="([^"]+)")xxx",
         R"xxx(<p class="des s-fc4">歌手：<span title="([^"]+)">)xxx",
-        R"xxx(<div class="f-thide s-fc4"><span title="([^"]+)">)xxx"
-    };
+        R"xxx(<div class="f-thide s-fc4"><span title="([^"]+)">)xxx"};
 
     bool artist_found = false;
     std::string raw_artist;
@@ -282,7 +280,8 @@ SongInfo CoverDownloader::getSongInfo(const std::string& songId) {
             std::string part = *iter;
             // Remove spaces
             part.erase(std::remove_if(part.begin(), part.end(), ::isspace), part.end());
-            if (!result.empty()) result += "_";
+            if (!result.empty())
+                result += "_";
             result += part;
         }
 
@@ -313,7 +312,8 @@ AlbumInfo CoverDownloader::getAlbumInfo(const std::string& albumId) {
     std::string response = safeRequest(url);
 
     if (response.empty()) {
-        return { "", "album_" + albumId };
+        return {.imageUrl = "",
+                .albumName = "album_" + albumId};
     }
 
     AlbumInfo info;
@@ -353,8 +353,7 @@ AlbumInfo CoverDownloader::getAlbumInfo(const std::string& albumId) {
     return info;
 }
 
-bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, int index,
-                                   std::vector<std::string>& failList) {
+bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, int index, std::vector<std::string>& failList) {
     auto [item_id, content_type] = Utils::extractIdAndType(idOrUrl);
     if (item_id.empty()) {
         std::cout << "[" << index << "] Cannot recognize link or ID: " << idOrUrl << std::endl;
@@ -366,8 +365,8 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
         // Create covers directory
         std::filesystem::create_directories("covers");
 
+        AlbumInfo info = getAlbumInfo(item_id);
         if (content_type == "album") {
-            AlbumInfo info = getAlbumInfo(item_id);
             if (info.imageUrl.empty()) {
                 std::cout << "[" << index << "] Album cover image not found: " << item_id << std::endl;
                 failList.push_back(item_id);
@@ -385,21 +384,17 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
 
             // Save file
             std::string full_path = "covers\\" + filename;
-            std::ofstream file(full_path, std::ios::binary);
-            if (file.is_open()) {
-                file.write(response_data.data(), response_data.size());
-                file.close();
+            if (createFileWithUnicode(full_path, response_data)) {
                 std::cout << "[" << index << "] Album \"" << info.albumName << "\" cover saved" << std::endl;
             } else {
-                std::cout << "[" << index << "] Cannot create file: " << filename << std::endl;
+                std::cout << "[" << index << "] Cannot create album file: " << info.albumName << std::endl;
                 failList.push_back(item_id);
                 return false;
             }
 
             humanDelay();
             return true;
-        }
-        else if (content_type == "song") {
+        } else if (content_type == "song") {
             SongInfo info = getSongInfo(item_id);
             if (info.imageUrl.empty()) {
                 std::cout << "[" << index << "] Song cover image not found: " << item_id << std::endl;
@@ -415,75 +410,17 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
                 failList.push_back(item_id);
                 return false;
             }
-
-            // Save file - use wide character API for proper UTF-8 handling
             std::string full_path = "covers\\" + filename;
-            std::cout << "[" << index << "] Attempting to create file: " << full_path << std::endl;
-            std::cout << "[" << index << "] File name length: " << filename.length() << std::endl;
-
-            // Convert UTF-8 filename to wide string for Windows API
-            int wide_len = MultiByteToWideChar(CP_UTF8, 0, full_path.c_str(), -1, NULL, 0);
-            if (wide_len > 0) {
-                std::vector<wchar_t> wide_path(wide_len);
-                MultiByteToWideChar(CP_UTF8, 0, full_path.c_str(), -1, wide_path.data(), wide_len);
-
-                // Use wide character file stream
-                std::ofstream file;
-                file.open(wide_path.data(), std::ios::binary);
-                if (file.is_open()) {
-                    file.write(response_data.data(), response_data.size());
-                    file.close();
-                    std::cout << "[" << index << "] " << info.artistName << " - " << info.songName << " saved" << std::endl;
-                } else {
-                    std::cout << "[" << index << "] Cannot create file (wide char): " << filename << std::endl;
-                    std::cout << "[" << index << "] Full path: " << full_path << std::endl;
-
-                    // Detailed character analysis
-                    std::cout << "[" << index << "] Character analysis:" << std::endl;
-                    for (size_t i = 0; i < filename.length(); ++i) {
-                        unsigned char c = static_cast<unsigned char>(filename[i]);
-                        std::cout << "[" << index << "]   char[" << i << "]: " << c << " (0x" << std::hex << static_cast<int>(c) << std::dec << ")";
-                        if (c >= 32 && c <= 126) {
-                            std::cout << " '" << filename[i] << "'";
-                        }
-                        std::cout << std::endl;
-                    }
-
-                    // Try with a simple ASCII name to test
-                    std::string test_path = "covers\\test_file.jpg";
-                    std::ofstream test_file(test_path, std::ios::binary);
-                    if (test_file.is_open()) {
-                        std::cout << "[" << index << "] Test file creation successful" << std::endl;
-                        test_file.close();
-                        DeleteFileA(test_path.c_str());
-                    } else {
-                        std::cout << "[" << index << "] Even test file creation failed" << std::endl;
-                    }
-
-                    // Try with a simpler Chinese filename
-                    std::string simple_chinese = "covers\\test_中文.jpg";
-                    std::ofstream simple_file(simple_chinese, std::ios::binary);
-                    if (simple_file.is_open()) {
-                        std::cout << "[" << index << "] Simple Chinese filename works" << std::endl;
-                        simple_file.close();
-                        DeleteFileA(simple_chinese.c_str());
-                    } else {
-                        std::cout << "[" << index << "] Simple Chinese filename also failed" << std::endl;
-                    }
-
-                    failList.push_back(item_id);
-                    return false;
-                }
+            if (createFileWithUnicode(full_path, response_data)) {
+                std::cout << "[" << index << "] " << info.artistName << " - " << info.songName << " saved" << std::endl;
             } else {
-                std::cout << "[" << index << "] Failed to convert filename to wide string" << std::endl;
+                std::cout << "[" << index << "] Cannot create song file: " << filename << std::endl;
                 failList.push_back(item_id);
                 return false;
             }
-
             humanDelay();
             return true;
-        }
-        else {
+        } else {
             std::cout << "[" << index << "] Unsupported type: " << content_type << std::endl;
             failList.push_back(item_id);
             return false;
@@ -493,6 +430,21 @@ bool CoverDownloader::downloadCover(const std::string& idOrUrl, int formatType, 
         failList.push_back(item_id);
         return false;
     }
+}
+
+bool CoverDownloader::createFileWithUnicode(const std::string& filepath, const std::vector<char>& data) {
+    int wide_len = MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, NULL, 0);
+    if (wide_len <= 0)
+        return false;
+    std::vector<wchar_t> wide_path(wide_len);
+    MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, wide_path.data(), wide_len);
+    std::ofstream file(wide_path.data(), std::ios::binary);
+    if (file.is_open()) {
+        file.write(data.data(), data.size());
+        file.close();
+        return true;
+    }
+    return false;
 }
 
 void CoverDownloader::humanDelay() {

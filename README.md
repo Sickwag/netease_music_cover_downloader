@@ -124,6 +124,7 @@ netease_music_cover_downloader/
 │   ├── cover_downloader.cpp # 封面下载核心逻辑
 │   └── utils.cpp          # 工具函数
 ├── include/               # 头文件目录
+├── test/                  # 一些测试文件
 ├── build/                 # 构建目录
 ├── covers/                # 下载的封面图片
 ├── CMakeLists.txt         # CMake构建配置
@@ -173,6 +174,7 @@ git push origin feature/AmazingFeature
 - 🔧 **2025-10-04 12:10** - 首个可运行版本，但存在中文文件名处理问题
 - 🐛 **2025-10-04 12:36** - 修复中文文件名编码问题，项目趋于稳定
 - 📦 **2025-10-04 13:25** - 完善项目文档，添加README和许可证文件
+- 🔧 **2025-10-05 10:46** - 修复专辑名称特殊字符不显示bug，升级到C++20以使用设计初始化器，小bug修复，删除主程序中无关测试代码
 
 ## 📞 联系方式
 
