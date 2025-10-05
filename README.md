@@ -124,6 +124,7 @@ netease_music_cover_downloader/
 │   ├── cover_downloader.cpp # 封面下载核心逻辑
 │   └── utils.cpp          # 工具函数
 ├── include/               # 头文件目录
+├── test/                  # 一些测试文件
 ├── build/                 # 构建目录
 ├── covers/                # 下载的封面图片
 ├── CMakeLists.txt         # CMake构建配置
