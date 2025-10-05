@@ -19,24 +19,27 @@ struct AlbumInfo {
 class CoverDownloader {
 private:
     std::string baseUrl;
-    
+
 public:
     CoverDownloader();
-    
+
     // Safe request function with retry logic
     std::vector<char> safeRequestBinary(const std::string& url, int retries = 2);
     std::string safeRequest(const std::string& url, int retries = 2);
-    
+
     // Get song information
     SongInfo getSongInfo(const std::string& songId);
-    
+
     // Get album information
     AlbumInfo getAlbumInfo(const std::string& albumId);
-    
+
     // Download cover
-    bool downloadCover(const std::string& idOrUrl, int formatType, int index, 
+    bool downloadCover(const std::string& idOrUrl, int formatType, int index,
                       std::vector<std::string>& failList);
-    
+
+    // create unicode filename string
+    bool createFileWithUnicode(const std::string& filename, const std::vector<char>& data);
+
     // Human-like delay
     void humanDelay();
 };

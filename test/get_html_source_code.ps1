@@ -1,0 +1,2 @@
+Invoke-WebRequest -Uri "https://music.163.com/#/song?id=1338719645" | Select-Object -ExpandProperty Content | Out-File -FilePath "D:\test_html_page.html"
+Invoke-WebRequest -Uri "https://music.163.com/song?id=1338719645" | Select-Object -ExpandProperty Content | Out-File -FilePath "D:\test_html_without_#_page.html"

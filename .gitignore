@@ -17,9 +17,6 @@ Thumbs.db
 *.njsproj
 *.vcxproj*
 *.vcxproj.filters
-
-# Test files
-test.py
-test_filename.cpp
-test_windows_filename.cpp
-UTF8_Encoding_Solution.md
+test/test_html_page.html
+test/test_not_with_#_html_page.html
+test/UTF8_Encoding_Solution.md
